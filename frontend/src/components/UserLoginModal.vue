@@ -6,6 +6,7 @@
           persistent
           max-width="600px"
         >
+        <v-form ref="form" class="mx-2" @submit.prevent="submitHandler">
           <v-card>
             <v-card-title>
               <span class="text-h5" v-if="!isLogin">Registrarse</span>
@@ -22,6 +23,7 @@
                       label="Nombre*"
                       required
                       v-model="name"
+                      :rules="nameRules"
                     ></v-text-field>
                   </v-col>
                   <v-col
@@ -33,6 +35,7 @@
                       persistent-hint
                       required
                       v-model="lastName"
+                      :rules="lastNameRules"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -42,6 +45,7 @@
                       label="Email*"
                       required
                       v-model="email"
+                      :rules="emailRules"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
@@ -50,6 +54,7 @@
                       type="password"
                       required
                       v-model="password"
+                      :rules="passwordRules"
                     ></v-text-field>
                   </v-col>
                   <v-col
@@ -65,21 +70,22 @@
                   </v-col>
                 </v-row>
               </v-container>
-              <small v-if="!isLogin">*indicates required field</small>
+              <small v-if="!isLogin">*Campos requeridos</small>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
                 color="blue darken-1"
                 text
-                @click="loginModal = false"
+                @click="closeModal()"
               >
                 Cerrar
               </v-btn>
-              <v-btn @click="register()" v-if="!isLogin">Registrarse</v-btn>
-              <v-btn @click="login()" v-else>Ingresar</v-btn>
+              <v-btn type="submit"  v-if="login">Registrarse</v-btn>
+              <v-btn @click="login()" v-if="!login">Ingresar</v-btn>
             </v-card-actions>
           </v-card>
+        </v-form>
         </v-dialog>
       </v-row>
     </v-container>
@@ -95,7 +101,11 @@
           lastName: '',
           email: '',
           password: '',
-          role: ''
+          role: '',
+          nameRules: [],
+          lastNameRules: [],
+          emailRules: [],
+          passwordRules: [],
         }
       },
       computed: {
@@ -135,7 +145,7 @@
               //this.mensaje = err.response.data.mensaje;
             })
         },
-        register(){
+        signup(){
           let user = {
             name: this.name,
             lastName: this.lastName,
@@ -153,6 +163,32 @@
               console.log(err);
               //this.mensaje = err.response.data.mensaje;
             })
+        },
+        submitHandler(){
+          this.nameRules = [
+            v => !!v || 'Ingrese un nombre'
+          ],
+          this.lastNameRules =[
+            v => !!v || 'Ingrese un apellido'
+          ],
+          this.emailRules = [
+            v => !!v || 'Ingrese un email',
+            v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'E-mail must be valid',
+          ],
+          this.passwordRules = [
+            v => !!v || 'Password is required',
+          ]
+          let self = this
+          setTimeout(function () {
+            if (self.$refs.form.validate()){
+              alert('submitted')
+              self.signup()
+            }  
+          })
+        },
+        closeModal(){
+          this.$refs.form.reset()
+          this.loginModal = false
         }
       }
 
