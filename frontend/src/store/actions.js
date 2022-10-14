@@ -6,18 +6,18 @@ const actions = {
         console.log(payload)
         commit('setUser', payload)
       },
-      logout({commit}){
+    logout({commit}){
+      commit('setUser', '');
+      localStorage.removeItem('token');
+      router.push({name: 'home'}).catch(() => {});
+    },
+    readToken({commit}){
+      const token = localStorage.getItem('token');
+      if(token){
+        commit('setUser', token);
+      }else{
         commit('setUser', '');
-        localStorage.removeItem('token');
-        router.push({name: 'home'});
-      },
-      readToken({commit}){
-        const token = localStorage.getItem('token');
-        if(token){
-          commit('setUser', token);
-        }else{
-          commit('setUser', '');
-        }
+      }
     }
 }
 export default actions

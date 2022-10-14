@@ -81,8 +81,8 @@
               >
                 Cerrar
               </v-btn>
-              <v-btn type="submit"  v-if="login">Registrarse</v-btn>
-              <v-btn @click="login()" v-if="!login">Ingresar</v-btn>
+              <v-btn type="submit" v-if="!isLogin">Registrarse</v-btn>
+              <v-btn @click="login()" v-else>Ingresar</v-btn>
             </v-card-actions>
           </v-card>
         </v-form>
@@ -139,6 +139,7 @@
               this.loginModal = false
               const token = res.data.token;
               this.$store.dispatch('saveUser',token);
+              this.$refs.form.reset()
             })
             .catch(err => {
               console.log(err);
@@ -160,8 +161,12 @@
               console.log(res.data);
             })
             .catch(err => {
-              console.log(err);
-              //this.mensaje = err.response.data.mensaje;
+              if(err.response.status == 400){
+                this.emailRules = [
+                  v => !!v || 'El email ' + user.email + ' se encuentra en uso',
+                ]
+                this.email = ''
+              }
             })
         },
         submitHandler(){
@@ -176,7 +181,7 @@
             v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'E-mail must be valid',
           ],
           this.passwordRules = [
-            v => !!v || 'Password is required',
+            v => !!v || 'Ingrese la contraseña',
           ]
           let self = this
           setTimeout(function () {

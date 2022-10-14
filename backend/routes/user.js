@@ -21,14 +21,22 @@ router.post('/signup', async (req,res) => {
     try {
 
         const userDB = await User.create(newUser);
-    
+
         return res.json(userDB);
         
       } catch (error) {
-        return res.status(500).json({
-          mensaje: 'Ocurrio un error',
-          error
-        });
+        const userDB = await User.findOne({email: req.body.email});
+        if(userDB) {
+            return res.status(400).json({
+                mensaje: 'Email already in use',
+                error
+            });
+        } else{
+            return res.status(500).json({
+              mensaje: 'Ocurrio un error',
+              error
+            });
+        }
       }
 });
 
